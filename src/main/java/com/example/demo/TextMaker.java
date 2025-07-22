@@ -34,7 +34,7 @@ public class TextMaker {
      * @return Configured Text node
      */
     public Text madeText(String value, double xCell, double yCell) {
-        double length = GameScene.getLENGTH();
+        double length = GameBoard.getLENGTH();
         double fontSize = (3 * length) / 7.0;
         Text text = new Text(value);
         text.setFont(Font.font(fontSize));
