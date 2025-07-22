@@ -49,6 +49,11 @@ My Repo: [CW](https://github.com/afraspriha24/CW)
 - Removed the need to pass Group root to madeText(...).
 - Made class a formal singleton (getSingleInstance()).
 
+`Cell.java`
+- **Cell.java**: Modified `adder` method to fix the scoring issue. It now returns merged value for score updates.
+- **GameScene.java**: Removed `sumCellNumbersToScore`, updated `moveHorizontally` and `moveVertically` to handle score updates, and adjusted game loop.
+
 ## Unexpected Problems
 
+- **Score Issue**: Initially, the score incremented incorrectly, which was resolved by updating the scoring logic.
 - Unused Code Discovery: Initially believed `Account.java` was already used in the game. After analysis, determined it was never integrated.
