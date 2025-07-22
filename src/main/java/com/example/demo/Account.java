@@ -1,4 +1,4 @@
-package com.example.demo.model;
+package com.example.demo;
 
 /**
  * Represents a player account with username and score.

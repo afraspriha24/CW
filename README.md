@@ -32,17 +32,22 @@ My Repo: [CW](https://github.com/afraspriha24/CW)
 
 ## New Java Classes
 
-`AccountManager.java` (Location: com.example.demo.model)
+`AccountManager.java`
 - Manages creation and lookup of Account objects.
 - Isolates static list from Account class for better structure.
  
 ## Modified Java Classes
 
-`Account.java` (Location: com.example.demo.model)
+`Account.java`
 - Refactored to remove static list.
 - Made getUserName() and getScore() public for external access.
 - Simplified to represent a single user's state.
 - Left in the codebase for future user-based features.
+
+`TextMaker.java`
+- Refactored for clarity and encapsulation.
+- Removed the need to pass Group root to madeText(...).
+- Made class a formal singleton (getSingleInstance()).
 
 ## Unexpected Problems
 
