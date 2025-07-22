@@ -51,12 +51,14 @@ public class Cell {
         cell.setColorByNumber(cell.getNumber());
     }
 
-    void adder(Cell cell) {
-        cell.getTextClass().setText((cell.getNumber() + this.getNumber()) + "");
+    int adder(Cell cell) {
+        int mergedValue = cell.getNumber() + this.getNumber();
+        cell.getTextClass().setText(mergedValue + "");
         textClass.setText("0");
         root.getChildren().remove(textClass);
-        cell.setColorByNumber(cell.getNumber());
+        cell.setColorByNumber(mergedValue);
         setColorByNumber(getNumber());
+        return mergedValue;
     }
 
     void setColorByNumber(int number) {
