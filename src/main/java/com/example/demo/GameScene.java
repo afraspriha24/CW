@@ -33,7 +33,6 @@ public class GameScene {
     public void game(Scene gameScene, Group root, Stage primaryStage, Scene endGameScene, Group endGameRoot) {
         this.root = root;
 
-        // Create cells
         for (int i = 0; i < n; i++) {
             for (int j = 0; j < n; j++) {
                 cells[i][j] = new Cell((j) * LENGTH + (j + 1) * distanceBetweenCells,
@@ -41,7 +40,6 @@ public class GameScene {
             }
         }
 
-        // Add score label
         Text label = new Text("SCORE :");
         label.setFont(Font.font(30));
         label.relocate(750, 100);
@@ -103,10 +101,13 @@ public class GameScene {
         int yCell = (int) (Math.random() * (bForBound + 1));
         int number = Math.random() < 0.5 ? 2 : 4;
 
-        Text text = textMaker.madeText(String.valueOf(number), emptyCells[xCell][yCell].getX(), emptyCells[xCell][yCell].getY());
-        emptyCells[xCell][yCell].setTextClass(text);
-        root.getChildren().add(text);
-        emptyCells[xCell][yCell].setColorByNumber(number);
+        Text text = textMaker.madeText(String.valueOf(number),
+                emptyCells[xCell][yCell].getX(),
+                emptyCells[xCell][yCell].getY());
+
+        emptyCells[xCell][yCell].setTextNode(text);
+        emptyCells[xCell][yCell].attachTextToRoot();
+        emptyCells[xCell][yCell].applyNewValue(number);
     }
 
     private int checkBoardState() {
@@ -132,7 +133,7 @@ public class GameScene {
                 moveHorizontally(i, j, passDestination(i, j, 'l'), -1);
             }
             for (int j = 0; j < n; j++) {
-                cells[i][j].setModify(false);
+                cells[i][j].setModified(false);
             }
         }
     }
@@ -143,7 +144,7 @@ public class GameScene {
                 moveHorizontally(i, j, passDestination(i, j, 'r'), 1);
             }
             for (int j = 0; j < n; j++) {
-                cells[i][j].setModify(false);
+                cells[i][j].setModified(false);
             }
         }
     }
@@ -154,7 +155,7 @@ public class GameScene {
                 moveVertically(i, j, passDestination(i, j, 'u'), -1);
             }
             for (int i = 0; i < n; i++) {
-                cells[i][j].setModify(false);
+                cells[i][j].setModified(false);
             }
         }
     }
@@ -165,7 +166,7 @@ public class GameScene {
                 moveVertically(i, j, passDestination(i, j, 'd'), 1);
             }
             for (int i = 0; i < n; i++) {
-                cells[i][j].setModify(false);
+                cells[i][j].setModified(false);
             }
         }
     }
@@ -190,7 +191,7 @@ public class GameScene {
         int target = des + sign;
         return target >= 0 && target < n &&
                 cells[i][target].getNumber() == cells[i][j].getNumber() &&
-                !cells[i][target].getModify() &&
+                !cells[i][target].isModified() &&
                 cells[i][target].getNumber() != 0;
     }
 
@@ -198,25 +199,25 @@ public class GameScene {
         int target = des + sign;
         return target >= 0 && target < n &&
                 cells[target][j].getNumber() == cells[i][j].getNumber() &&
-                !cells[target][j].getModify() &&
+                !cells[target][j].isModified() &&
                 cells[target][j].getNumber() != 0;
     }
 
     private void moveHorizontally(int i, int j, int des, int sign) {
         if (isValidDesH(i, j, des, sign)) {
-            score += cells[i][j].adder(cells[i][des + sign]);
-            cells[i][des].setModify(true);
+            score += cells[i][j].mergeInto(cells[i][des + sign]);
+            cells[i][des].setModified(true);
         } else if (des != j) {
-            cells[i][j].changeCell(cells[i][des]);
+            cells[i][j].swapContent(cells[i][des]);
         }
     }
 
     private void moveVertically(int i, int j, int des, int sign) {
         if (isValidDesV(i, j, des, sign)) {
-            score += cells[i][j].adder(cells[des + sign][j]);
-            cells[des][j].setModify(true);
+            score += cells[i][j].mergeInto(cells[des + sign][j]);
+            cells[des][j].setModified(true);
         } else if (des != i) {
-            cells[i][j].changeCell(cells[des][j]);
+            cells[i][j].swapContent(cells[des][j]);
         }
     }
 

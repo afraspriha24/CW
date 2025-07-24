@@ -1,123 +1,115 @@
 package com.example.demo;
 
-
 import javafx.scene.Group;
 import javafx.scene.paint.Color;
 import javafx.scene.shape.Rectangle;
 import javafx.scene.text.Text;
 
 public class Cell {
-    private Rectangle rectangle;
-    private Group root;
-    private Text textClass;
-    private boolean modify = false;
+    private final Rectangle background;
+    private final Group root;
+    private Text textNode;
+    private boolean modified = false;
 
-    void setModify(boolean modify) {
-        this.modify = modify;
-    }
-
-    boolean getModify() {
-        return modify;
-    }
-
-    Cell(double x, double y, double scale, Group root) {
-        rectangle = new Rectangle();
-        rectangle.setX(x);
-        rectangle.setY(y);
-        rectangle.setHeight(scale);
-        rectangle.setWidth(scale);
+    public Cell(double x, double y, double size, Group root) {
         this.root = root;
-        rectangle.setFill(Color.rgb(224, 226, 226, 0.5));
-        this.textClass = TextMaker.getSingleInstance().madeText("0", x, y);
-        root.getChildren().add(rectangle);
+        this.background = new Rectangle(x, y, size, size);
+        this.background.setFill(getColorForNumber(0));
+
+        this.textNode = TextMaker.getSingleInstance().madeText("0", x, y);
+        root.getChildren().add(background);
     }
 
-    void setTextClass(Text textClass) {
-        this.textClass = textClass;
+    public void setModified(boolean modified) {
+        this.modified = modified;
     }
 
-    void changeCell(Cell cell) {
-        TextMaker.changeTwoText(textClass, cell.getTextClass());
-        root.getChildren().remove(cell.getTextClass());
-        root.getChildren().remove(textClass);
-
-        if (!cell.getTextClass().getText().equals("0")) {
-            root.getChildren().add(cell.getTextClass());
-        }
-        if (!textClass.getText().equals("0")) {
-            root.getChildren().add(textClass);
-        }
-        setColorByNumber(getNumber());
-        cell.setColorByNumber(cell.getNumber());
+    public boolean isModified() {
+        return modified;
     }
 
-    int adder(Cell cell) {
-        int mergedValue = cell.getNumber() + this.getNumber();
-        cell.getTextClass().setText(mergedValue + "");
-        textClass.setText("0");
-        root.getChildren().remove(textClass);
-        cell.setColorByNumber(mergedValue);
-        setColorByNumber(getNumber());
+    public void setTextNode(Text newText) {
+        this.textNode = newText;
+    }
+
+    public int getNumber() {
+        return Integer.parseInt(textNode.getText());
+    }
+
+    public double getX() {
+        return background.getX();
+    }
+
+    public double getY() {
+        return background.getY();
+    }
+
+    public void updateVisuals() {
+        updateColor();
+        updateTextVisibility();
+    }
+
+    public void swapContent(Cell target) {
+        TextMaker.changeTwoText(this.textNode, target.textNode);
+
+        root.getChildren().removeAll(this.textNode, target.textNode);
+        if (!this.isEmpty()) root.getChildren().add(this.textNode);
+        if (!target.isEmpty()) root.getChildren().add(target.textNode);
+
+        this.updateColor();
+        target.updateColor();
+    }
+
+    public int mergeInto(Cell target) {
+        int mergedValue = this.getNumber() + target.getNumber();
+        target.textNode.setText(String.valueOf(mergedValue));
+        this.textNode.setText("0");
+
+        root.getChildren().remove(this.textNode);
+        target.updateColor();
+        this.updateColor();
+
         return mergedValue;
     }
 
-    void setColorByNumber(int number) {
-        switch (number) {
-            case 0:
-                rectangle.setFill(Color.rgb(224, 226, 226, 0.5));
-                break;
-            case 2:
-                rectangle.setFill(Color.rgb(232, 255, 100, 0.5));
-                break;
-            case 4:
-                rectangle.setFill(Color.rgb(232, 220, 50, 0.5));
-                break;
-            case 8:
-                rectangle.setFill(Color.rgb(232, 200, 44, 0.8));
-                break;
-            case 16:
-                rectangle.setFill(Color.rgb(232, 170, 44, 0.8));
-                break;
-            case 32:
-                rectangle.setFill(Color.rgb(180, 120, 44, 0.7));
-                break;
-            case 64:
-                rectangle.setFill(Color.rgb(180, 100, 44, 0.7));
-                break;
-            case 128:
-                rectangle.setFill(Color.rgb(180, 80, 44, 0.7));
-                break;
-            case 256:
-                rectangle.setFill(Color.rgb(180, 60, 44, 0.8));
-                break;
-            case 512:
-                rectangle.setFill(Color.rgb(180, 30, 44, 0.8));
-                break;
-            case 1024:
-                rectangle.setFill(Color.rgb(250, 0, 44, 0.8));
-                break;
-            case 2048:
-                rectangle.setFill(Color.rgb(250,0,0,1));
+    public void applyNewValue(int value) {
+        textNode.setText(String.valueOf(value));
+        updateVisuals();
+    }
 
+    public void attachTextToRoot() {
+        root.getChildren().add(textNode);
+    }
 
+    private void updateTextVisibility() {
+        if (!root.getChildren().contains(textNode) && !isEmpty()) {
+            root.getChildren().add(textNode);
         }
-
     }
 
-    double getX() {
-        return rectangle.getX();
+    private void updateColor() {
+        background.setFill(getColorForNumber(getNumber()));
     }
 
-    double getY() {
-        return rectangle.getY();
+    private boolean isEmpty() {
+        return getNumber() == 0;
     }
 
-    int getNumber() {
-        return Integer.parseInt(textClass.getText());
+    private Color getColorForNumber(int number) {
+        return switch (number) {
+            case 0 -> Color.rgb(224, 226, 226, 0.5);
+            case 2 -> Color.rgb(232, 255, 100, 0.5);
+            case 4 -> Color.rgb(232, 220, 50, 0.5);
+            case 8 -> Color.rgb(232, 200, 44, 0.8);
+            case 16 -> Color.rgb(232, 170, 44, 0.8);
+            case 32 -> Color.rgb(180, 120, 44, 0.7);
+            case 64 -> Color.rgb(180, 100, 44, 0.7);
+            case 128 -> Color.rgb(180, 80, 44, 0.7);
+            case 256 -> Color.rgb(180, 60, 44, 0.8);
+            case 512 -> Color.rgb(180, 30, 44, 0.8);
+            case 1024 -> Color.rgb(250, 0, 44, 0.8);
+            case 2048 -> Color.rgb(250, 0, 0, 1);
+            default -> Color.BLACK;
+        };
     }
-
-    private Text getTextClass() {
-        return textClass;
-    }
-
 }

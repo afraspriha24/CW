@@ -25,6 +25,8 @@ My Repo: [CW](https://github.com/afraspriha24/CW)
      - Or press `ctrl + F5`
 
 ## Implemented and Working Properly
+- **Score bug fixed** — scoring only updates when tiles are merged correctly.
+- Full UI refactor of `Cell` interactions using encapsulated methods
 
 ## Implemented but Not Working Properly
 
@@ -35,6 +37,11 @@ My Repo: [CW](https://github.com/afraspriha24/CW)
 `AccountManager.java`
 - Manages creation and lookup of Account objects.
 - Isolates static list from Account class for better structure.
+
+`GameBoard.java`
+- Extracted from `GameScene` as part of the UI and logic separation.
+- Handles board/grid initialization and tile generation.
+- Improves modularity and clarity between UI logic and game state.
  
 ## Modified Java Classes
 
@@ -50,10 +57,28 @@ My Repo: [CW](https://github.com/afraspriha24/CW)
 - Made class a formal singleton (getSingleInstance()).
 
 `Cell.java`
-- **Cell.java**: Modified `adder` method to fix the scoring issue. It now returns merged value for score updates.
-- **GameScene.java**: Removed `sumCellNumbersToScore`, updated `moveHorizontally` and `moveVertically` to handle score updates, and adjusted game loop.
+- Fully refactored for encapsulation and readability.
+- All UI updates are now handled internally via:
+    - `applyNewValue(int)`
+    - `swapContent(Cell)`
+    - `mergeInto(Cell)`
+    - `attachTextToRoot()`
+    - `updateVisuals()`
+- Fixed scoring logic in `mergeInto(...)` to prevent incorrect score updates.
+- Removed direct color setting from outside classes.
+
+### `GameScene.java`
+- Replaced raw UI manipulation of `Cell` with encapsulated methods.
+- Updated movement methods to use `mergeInto` and `swapContent`.
+- Ensured score updates only happen during valid merges.
+- Rewrote `randomFillNumber()` to rely on new `Cell` interface.
+
+### `GameBoard.java`
+- Refactored `randomFillNumber()` to use updated `Cell` methods.
+- Improved consistency in tile generation logic.
 
 ## Unexpected Problems
 
 - **Score Issue**: Initially, the score incremented incorrectly, which was resolved by updating the scoring logic.
 - Unused Code Discovery: Initially believed `Account.java` was already used in the game. After analysis, determined it was never integrated.
+- **UI-State Management**: Managing UI (e.g., `Text` and `Color`) externally became error-prone. This was resolved by encapsulating all visual state inside `Cell.java`.

@@ -5,9 +5,6 @@ import javafx.scene.text.Text;
 
 import java.util.Random;
 
-/**
- * Manages the 2048 game grid and logic (cell creation, movement, merging).
- */
 public class GameBoard {
     private static final int distanceBetweenCells = 10;
     private static int HEIGHT = 700;
@@ -63,8 +60,7 @@ public class GameBoard {
                         aForBound = a;
                         a++;
                         b = 0;
-                        if (a == n)
-                            break outer;
+                        if (a == n) break outer;
                     }
                 }
             }
@@ -73,15 +69,15 @@ public class GameBoard {
         Random random = new Random();
         int xCell = random.nextInt(Math.max(1, aForBound + 1));
         int yCell = random.nextInt(Math.max(1, bForBound + 1));
-        boolean putTwo = random.nextInt() % 2 == 0;
-        int number = putTwo ? 2 : 4;
+        int number = random.nextBoolean() ? 2 : 4;
 
         Text text = textMaker.madeText(String.valueOf(number),
                 emptyCells[xCell][yCell].getX(),
                 emptyCells[xCell][yCell].getY());
-        emptyCells[xCell][yCell].setTextClass(text);
-        root.getChildren().add(text);
-        emptyCells[xCell][yCell].setColorByNumber(number);
+
+        emptyCells[xCell][yCell].setTextNode(text);
+        emptyCells[xCell][yCell].attachTextToRoot();
+        emptyCells[xCell][yCell].applyNewValue(number);
     }
 
     public boolean isFull() {
@@ -105,10 +101,8 @@ public class GameBoard {
     public boolean canNotMove() {
         for (int i = 0; i < n; i++) {
             for (int j = 0; j < n; j++) {
-                if (i < n - 1 && cells[i][j].getNumber() == cells[i + 1][j].getNumber())
-                    return false;
-                if (j < n - 1 && cells[i][j].getNumber() == cells[i][j + 1].getNumber())
-                    return false;
+                if (i < n - 1 && cells[i][j].getNumber() == cells[i + 1][j].getNumber()) return false;
+                if (j < n - 1 && cells[i][j].getNumber() == cells[i][j + 1].getNumber()) return false;
             }
         }
         return true;
