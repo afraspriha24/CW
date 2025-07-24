@@ -3,6 +3,8 @@ package com.example.demo;
 import javafx.application.Platform;
 import javafx.scene.Group;
 import javafx.scene.Scene;
+import javafx.scene.control.Alert;
+import javafx.scene.control.Button;
 import javafx.scene.input.KeyCode;
 import javafx.scene.input.KeyEvent;
 import javafx.scene.text.Font;
@@ -21,6 +23,7 @@ public class GameScene {
     private long score = 0;
     private Text scoreText;
     private Account currentPlayer;
+    private boolean hasShownWinAlert = false;
 
     public static void setN(int number) {
         n = number;
@@ -37,11 +40,9 @@ public class GameScene {
         this.root = root;
         this.currentPlayer = player;
         this.score = 0;
-
-        // Clear previous grid
+        this.hasShownWinAlert = false;
         root.getChildren().clear();
 
-        // Init grid
         for (int i = 0; i < n; i++) {
             for (int j = 0; j < n; j++) {
                 cells[i][j] = new Cell((j) * LENGTH + (j + 1) * distanceBetweenCells,
@@ -59,20 +60,49 @@ public class GameScene {
         scoreText.relocate(750, 150);
         root.getChildren().add(scoreText);
 
+        // Restart Button
+        Button restartBtn = new Button("Restart");
+        restartBtn.setPrefSize(100, 30);
+        restartBtn.setLayoutX(750);
+        restartBtn.setLayoutY(200);
+        restartBtn.setOnAction(e -> onRestart.run());
+        root.getChildren().add(restartBtn);
+        restartBtn.setFocusTraversable(false);
+
+        // Back Button
+        Button backBtn = new Button("Back");
+        backBtn.setPrefSize(100, 30);
+        backBtn.setLayoutX(750);
+        backBtn.setLayoutY(240);
+        backBtn.setOnAction(e -> goHome.run());
+        root.getChildren().add(backBtn);
+        backBtn.setFocusTraversable(false);
+
         randomFillNumber();
         randomFillNumber();
 
         gameScene.addEventHandler(KeyEvent.KEY_PRESSED, key -> {
             Platform.runLater(() -> {
-                if (key.getCode() == KeyCode.LEFT) moveLeft();
-                else if (key.getCode() == KeyCode.RIGHT) moveRight();
-                else if (key.getCode() == KeyCode.UP) moveUp();
-                else if (key.getCode() == KeyCode.DOWN) moveDown();
+                boolean moved = false;
+                if (key.getCode() == KeyCode.LEFT) moved = moveLeft();
+                else if (key.getCode() == KeyCode.RIGHT) moved = moveRight();
+                else if (key.getCode() == KeyCode.UP) moved = moveUp();
+                else if (key.getCode() == KeyCode.DOWN) moved = moveDown();
 
                 scoreText.setText(score + "");
 
-                int state = checkBoardState();
-                if (state == -1 && canNotMove()) {
+                if (!hasShownWinAlert && reached2048()) {
+                    hasShownWinAlert = true;
+                    Alert alert = new Alert(Alert.AlertType.INFORMATION);
+                    alert.setTitle("You Win!");
+                    alert.setHeaderText("Congratulations!");
+                    alert.setContentText("You created the 2048 tile! Continue playing to set a higher score.");
+                    alert.showAndWait();
+                }
+
+                if (moved) randomFillNumber();
+
+                if (isFull() && canNotMove()) {
                     EndGame.getInstance().endGameShow(
                             endGameScene,
                             endGameRoot,
@@ -82,8 +112,6 @@ public class GameScene {
                             goHome,
                             currentPlayer
                     );
-                } else if (state == 1) {
-                    randomFillNumber();
                 }
             });
         });
@@ -124,65 +152,66 @@ public class GameScene {
         emptyCells[xCell][yCell].applyNewValue(number);
     }
 
-    private int checkBoardState() {
-        boolean full = true;
-        boolean reached = false;
-
-        for (int i = 0; i < n; i++) {
-            for (int j = 0; j < n; j++) {
-                int num = cells[i][j].getNumber();
-                if (num == 0) full = false;
-                if (num == 2048) reached = true;
+    private boolean reached2048() {
+        for (Cell[] row : cells) {
+            for (Cell cell : row) {
+                if (cell.getNumber() == 2048) return true;
             }
         }
-
-        if (reached) return 0;
-        if (!full) return 1;
-        return -1;
+        return false;
     }
 
-    private void moveLeft() {
+    private boolean isFull() {
+        for (Cell[] row : cells) {
+            for (Cell cell : row) {
+                if (cell.getNumber() == 0) return false;
+            }
+        }
+        return true;
+    }
+
+    private boolean moveLeft() {
+        boolean moved = false;
         for (int i = 0; i < n; i++) {
             for (int j = 1; j < n; j++) {
-                moveHorizontally(i, j, passDestination(i, j, 'l'), -1);
+                moved |= moveHorizontally(i, j, passDestination(i, j, 'l'), -1);
             }
-            for (int j = 0; j < n; j++) {
-                cells[i][j].setModified(false);
-            }
+            for (int j = 0; j < n; j++) cells[i][j].setModified(false);
         }
+        return moved;
     }
 
-    private void moveRight() {
+    private boolean moveRight() {
+        boolean moved = false;
         for (int i = 0; i < n; i++) {
             for (int j = n - 2; j >= 0; j--) {
-                moveHorizontally(i, j, passDestination(i, j, 'r'), 1);
+                moved |= moveHorizontally(i, j, passDestination(i, j, 'r'), 1);
             }
-            for (int j = 0; j < n; j++) {
-                cells[i][j].setModified(false);
-            }
+            for (int j = 0; j < n; j++) cells[i][j].setModified(false);
         }
+        return moved;
     }
 
-    private void moveUp() {
+    private boolean moveUp() {
+        boolean moved = false;
         for (int j = 0; j < n; j++) {
             for (int i = 1; i < n; i++) {
-                moveVertically(i, j, passDestination(i, j, 'u'), -1);
+                moved |= moveVertically(i, j, passDestination(i, j, 'u'), -1);
             }
-            for (int i = 0; i < n; i++) {
-                cells[i][j].setModified(false);
-            }
+            for (int i = 0; i < n; i++) cells[i][j].setModified(false);
         }
+        return moved;
     }
 
-    private void moveDown() {
+    private boolean moveDown() {
+        boolean moved = false;
         for (int j = 0; j < n; j++) {
             for (int i = n - 2; i >= 0; i--) {
-                moveVertically(i, j, passDestination(i, j, 'd'), 1);
+                moved |= moveVertically(i, j, passDestination(i, j, 'd'), 1);
             }
-            for (int i = 0; i < n; i++) {
-                cells[i][j].setModified(false);
-            }
+            for (int i = 0; i < n; i++) cells[i][j].setModified(false);
         }
+        return moved;
     }
 
     private int passDestination(int i, int j, char direction) {
@@ -217,22 +246,28 @@ public class GameScene {
                 cells[target][j].getNumber() != 0;
     }
 
-    private void moveHorizontally(int i, int j, int des, int sign) {
+    private boolean moveHorizontally(int i, int j, int des, int sign) {
         if (isValidDesH(i, j, des, sign)) {
             score += cells[i][j].mergeInto(cells[i][des + sign]);
             cells[i][des].setModified(true);
+            return true;
         } else if (des != j) {
             cells[i][j].swapContent(cells[i][des]);
+            return true;
         }
+        return false;
     }
 
-    private void moveVertically(int i, int j, int des, int sign) {
+    private boolean moveVertically(int i, int j, int des, int sign) {
         if (isValidDesV(i, j, des, sign)) {
             score += cells[i][j].mergeInto(cells[des + sign][j]);
             cells[des][j].setModified(true);
+            return true;
         } else if (des != i) {
             cells[i][j].swapContent(cells[des][j]);
+            return true;
         }
+        return false;
     }
 
     private boolean canNotMove() {
