@@ -14,17 +14,40 @@ import javafx.stage.Stage;
 
 import java.util.List;
 
+/**
+ * Represents the main home screen for the 2048 game.
+ * <p>
+ * This screen provides the player with options to:
+ * <ul>
+ *   <li>Start a new game</li>
+ *   <li>Create a new user profile</li>
+ *   <li>Edit and switch between existing profiles</li>
+ *   <li>View recent scores</li>
+ *   <li>Read game rules</li>
+ *   <li>Exit the application</li>
+ * </ul>
+ */
 public class HomeScreen {
     private final Stage stage;
     private final Runnable onStartNewGame;
     private Account currentPlayer;
 
+    /**
+     * Constructs the HomeScreen with a player and a callback for starting a new game.
+     *
+     * @param stage           the primary stage of the application
+     * @param currentPlayer   the currently logged-in player
+     * @param onStartNewGame  callback to launch the game scene
+     */
     public HomeScreen(Stage stage, Account currentPlayer, Runnable onStartNewGame) {
         this.stage = stage;
         this.currentPlayer = currentPlayer;
         this.onStartNewGame = onStartNewGame;
     }
 
+    /**
+     * Displays the home screen with title, buttons, and user interaction controls.
+     */
     public void show() {
         VBox layout = new VBox(20);
         layout.setAlignment(Pos.CENTER);
@@ -38,12 +61,12 @@ public class HomeScreen {
         usernameDisplay.setFont(Font.font(24));
         layout.getChildren().add(usernameDisplay);
 
-        // Start Game
+        // Button: Start New Game
         Button startButton = new Button("Start New Game");
         startButton.setPrefSize(200, 40);
         startButton.setOnAction(e -> onStartNewGame.run());
 
-        // Create New Profile
+        // Button: Create New Profile
         Button createButton = new Button("Create New Profile");
         createButton.setPrefSize(200, 40);
         createButton.setOnAction(e -> {
@@ -61,7 +84,7 @@ public class HomeScreen {
             });
         });
 
-        // Edit Profile (choose from existing or rename)
+        // Button: Edit Profile (choose existing profile)
         Button editProfileButton = new Button("Edit Profile");
         editProfileButton.setPrefSize(200, 40);
         editProfileButton.setOnAction(e -> {
@@ -78,40 +101,50 @@ public class HomeScreen {
             });
         });
 
-        // High Scores
+        // Button: Show Recent Scores
         Button highScoresButton = new Button("High Scores");
         highScoresButton.setPrefSize(200, 40);
         highScoresButton.setOnAction(e -> showRecentScores(currentPlayer));
 
-        // Rules
+        // Button: Game Rules
         Button rulesButton = new Button("Rules");
         rulesButton.setPrefSize(200, 40);
         rulesButton.setOnAction(e -> {
             Alert alert = new Alert(Alert.AlertType.INFORMATION);
             alert.setTitle("Game Rules");
             alert.setHeaderText("How to Play");
-            alert.setContentText("Use arrow keys to slide tiles.\nWhen two tiles with the same number touch, they merge!\nReach 2048 to win!");
+            alert.setContentText("Use arrow keys to slide tiles.\n"
+                    + "When two tiles with the same number touch, they merge!\n"
+                    + "Reach 2048 to win!");
             alert.showAndWait();
         });
 
-        // Exit
+        // Button: Exit Game
         Button exitButton = new Button("Exit");
         exitButton.setPrefSize(200, 40);
         exitButton.setOnAction(e -> stage.close());
 
+        // Add all buttons to the layout
         layout.getChildren().addAll(
                 startButton, createButton, editProfileButton,
                 highScoresButton, rulesButton, exitButton
         );
 
+        // Set and show the scene
         Scene scene = new Scene(layout, 900, 900);
         stage.setScene(scene);
         stage.show();
     }
 
+    /**
+     * Displays a dialog with the most recent scores of the current player.
+     *
+     * @param account the player whose scores are to be shown
+     */
     private void showRecentScores(Account account) {
         StringBuilder sb = new StringBuilder();
         List<Long> scores = account.getRecentScores();
+
         if (scores.isEmpty()) {
             sb.append("No games played yet.");
         } else {
@@ -127,6 +160,11 @@ public class HomeScreen {
         alert.showAndWait();
     }
 
+    /**
+     * Returns the currently selected player profile.
+     *
+     * @return the active Account object
+     */
     public Account getCurrentPlayer() {
         return currentPlayer;
     }

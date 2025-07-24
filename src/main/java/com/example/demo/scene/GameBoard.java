@@ -7,6 +7,12 @@ import javafx.scene.text.Text;
 
 import java.util.Random;
 
+/**
+ * Represents the game board grid for the 2048 game.
+ * <p>
+ * Manages cell initialization, random tile generation, and basic board state checking
+ * (e.g., full board, game over, reached 2048).
+ */
 public class GameBoard {
     private static final int distanceBetweenCells = 10;
     private static int HEIGHT = 700;
@@ -17,24 +23,47 @@ public class GameBoard {
     private final Group root;
     private final TextMaker textMaker = TextMaker.getSingleInstance();
 
+    /**
+     * Constructs a new {@code GameBoard} and initializes the cell grid.
+     *
+     * @param root the JavaFX Group to which cell graphics will be added
+     */
     public GameBoard(Group root) {
         this.root = root;
         initializeGrid();
     }
 
+    /**
+     * Sets the board size (n x n) and recalculates cell length.
+     *
+     * @param number the number of rows and columns for the board
+     */
     public static void setN(int number) {
         n = number;
         LENGTH = (HEIGHT - ((n + 1) * distanceBetweenCells)) / (double) n;
     }
 
+    /**
+     * Returns the current computed tile length.
+     *
+     * @return length of one tile cell (in pixels)
+     */
     public static double getLENGTH() {
         return LENGTH;
     }
 
+    /**
+     * Returns the internal 2D array of {@link Cell} objects.
+     *
+     * @return 2D Cell array representing the grid
+     */
     public Cell[][] getCells() {
         return cells;
     }
 
+    /**
+     * Initializes the board with empty cells and fills two random tiles.
+     */
     public void initializeGrid() {
         for (int i = 0; i < n; i++) {
             for (int j = 0; j < n; j++) {
@@ -46,10 +75,14 @@ public class GameBoard {
         randomFillNumber();
     }
 
+    /**
+     * Fills a random empty cell with either a 2 or 4.
+     */
     public void randomFillNumber() {
         Cell[][] emptyCells = new Cell[n][n];
         int a = 0, b = 0, aForBound = 0, bForBound = 0;
 
+        // Collect all empty cells
         outer:
         for (int i = 0; i < n; i++) {
             for (int j = 0; j < n; j++) {
@@ -68,6 +101,7 @@ public class GameBoard {
             }
         }
 
+        // Randomly select one empty cell and assign a new value
         Random random = new Random();
         int xCell = random.nextInt(Math.max(1, aForBound + 1));
         int yCell = random.nextInt(Math.max(1, bForBound + 1));
@@ -82,6 +116,11 @@ public class GameBoard {
         emptyCells[xCell][yCell].applyNewValue(number);
     }
 
+    /**
+     * Checks whether all cells on the board are filled.
+     *
+     * @return {@code true} if the board is full; {@code false} otherwise
+     */
     public boolean isFull() {
         for (Cell[] row : cells) {
             for (Cell cell : row) {
@@ -91,6 +130,11 @@ public class GameBoard {
         return true;
     }
 
+    /**
+     * Checks whether the board contains a tile with value 2048.
+     *
+     * @return {@code true} if 2048 tile exists; {@code false} otherwise
+     */
     public boolean reached2048() {
         for (Cell[] row : cells) {
             for (Cell cell : row) {
@@ -100,6 +144,11 @@ public class GameBoard {
         return false;
     }
 
+    /**
+     * Determines if the player has no more valid moves left.
+     *
+     * @return {@code true} if no moves can be made; {@code false} otherwise
+     */
     public boolean canNotMove() {
         for (int i = 0; i < n; i++) {
             for (int j = 0; j < n; j++) {

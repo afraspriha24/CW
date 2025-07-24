@@ -14,7 +14,15 @@ import javafx.scene.text.Font;
 import javafx.scene.text.Text;
 import javafx.stage.Stage;
 
+/**
+ * Handles the main 2048 gameplay scene, including tile movement, scoring,
+ * and UI updates.
+ * <p>
+ * Responsible for rendering the board, reacting to key events, detecting game
+ * over or victory, and triggering restarts or home screen transitions.
+ */
 public class GameScene {
+
     private static final int distanceBetweenCells = 10;
     private static int HEIGHT = 700;
     private static int n = 4;
@@ -28,15 +36,38 @@ public class GameScene {
     private Account currentPlayer;
     private boolean hasShownWinAlert = false;
 
+    /**
+     * Sets the board size (e.g., 4x4) and recalculates the tile length.
+     *
+     * @param number size of the board (number of rows and columns)
+     */
     public static void setN(int number) {
         n = number;
         LENGTH = (HEIGHT - ((n + 1) * distanceBetweenCells)) / (double) n;
     }
 
+    /**
+     * Returns the current calculated cell length.
+     *
+     * @return tile width/height in pixels
+     */
     public static double getLENGTH() {
         return LENGTH;
     }
 
+    /**
+     * Initializes the game scene, sets up key handlers, score display, buttons,
+     * and begins gameplay.
+     *
+     * @param gameScene    main scene object
+     * @param root         root node (Group) for UI elements
+     * @param primaryStage stage reference
+     * @param endGameScene scene to show when game ends
+     * @param endGameRoot  root of the endgame screen
+     * @param player       current player's account
+     * @param onRestart    callback to restart the game
+     * @param goHome       callback to return to home screen
+     */
     public void game(Scene gameScene, Group root, Stage primaryStage, Scene endGameScene, Group endGameRoot,
                      Account player, Runnable onRestart, Runnable goHome) {
 
@@ -46,6 +77,7 @@ public class GameScene {
         this.hasShownWinAlert = false;
         root.getChildren().clear();
 
+        // Initialize cells
         for (int i = 0; i < n; i++) {
             for (int j = 0; j < n; j++) {
                 cells[i][j] = new Cell((j) * LENGTH + (j + 1) * distanceBetweenCells,
@@ -53,6 +85,7 @@ public class GameScene {
             }
         }
 
+        // Score label and value
         Text label = new Text("SCORE:");
         label.setFont(Font.font(30));
         label.relocate(750, 100);
@@ -63,30 +96,33 @@ public class GameScene {
         scoreText.relocate(750, 150);
         root.getChildren().add(scoreText);
 
-        // Restart Button
+        // Restart button
         Button restartBtn = new Button("Restart");
         restartBtn.setPrefSize(100, 30);
         restartBtn.setLayoutX(750);
         restartBtn.setLayoutY(200);
         restartBtn.setOnAction(e -> onRestart.run());
-        root.getChildren().add(restartBtn);
         restartBtn.setFocusTraversable(false);
+        root.getChildren().add(restartBtn);
 
-        // Back Button
+        // Back button
         Button backBtn = new Button("Back");
         backBtn.setPrefSize(100, 30);
         backBtn.setLayoutX(750);
         backBtn.setLayoutY(240);
         backBtn.setOnAction(e -> goHome.run());
-        root.getChildren().add(backBtn);
         backBtn.setFocusTraversable(false);
+        root.getChildren().add(backBtn);
 
+        // Start game with two random tiles
         randomFillNumber();
         randomFillNumber();
 
+        // Handle arrow key presses
         gameScene.addEventHandler(KeyEvent.KEY_PRESSED, key -> {
             Platform.runLater(() -> {
                 boolean moved = false;
+
                 if (key.getCode() == KeyCode.LEFT) moved = moveLeft();
                 else if (key.getCode() == KeyCode.RIGHT) moved = moveRight();
                 else if (key.getCode() == KeyCode.UP) moved = moveUp();
@@ -107,19 +143,16 @@ public class GameScene {
 
                 if (isFull() && canNotMove()) {
                     EndGame.getInstance().endGameShow(
-                            endGameScene,
-                            endGameRoot,
-                            primaryStage,
-                            score,
-                            onRestart,
-                            goHome,
-                            currentPlayer
+                            endGameScene, endGameRoot, primaryStage, score, onRestart, goHome, currentPlayer
                     );
                 }
             });
         });
     }
 
+    /**
+     * Places a new tile (2 or 4) at a random empty position.
+     */
     private void randomFillNumber() {
         Cell[][] emptyCells = new Cell[n][n];
         int a = 0, b = 0, aForBound = 0, bForBound = 0;
@@ -155,6 +188,9 @@ public class GameScene {
         emptyCells[xCell][yCell].applyNewValue(number);
     }
 
+    /**
+     * @return true if a tile with value 2048 exists
+     */
     private boolean reached2048() {
         for (Cell[] row : cells) {
             for (Cell cell : row) {
@@ -164,6 +200,9 @@ public class GameScene {
         return false;
     }
 
+    /**
+     * @return true if the board has no empty tiles
+     */
     private boolean isFull() {
         for (Cell[] row : cells) {
             for (Cell cell : row) {
@@ -172,6 +211,8 @@ public class GameScene {
         }
         return true;
     }
+
+    // --- Movement handlers ---
 
     private boolean moveLeft() {
         boolean moved = false;
@@ -217,6 +258,9 @@ public class GameScene {
         return moved;
     }
 
+    /**
+     * Determines how far a tile can travel in a direction until it hits another tile.
+     */
     private int passDestination(int i, int j, char direction) {
         int coord = (direction == 'l' || direction == 'r') ? j : i;
         int step = (direction == 'l' || direction == 'u') ? -1 : 1;
@@ -232,6 +276,8 @@ public class GameScene {
         }
         return coord;
     }
+
+    // --- Merge and move validation ---
 
     private boolean isValidDesH(int i, int j, int des, int sign) {
         int target = des + sign;
@@ -273,6 +319,11 @@ public class GameScene {
         return false;
     }
 
+    /**
+     * Checks if the board is full and no valid moves remain.
+     *
+     * @return {@code true} if no moves possible
+     */
     private boolean canNotMove() {
         for (int i = 0; i < n; i++) {
             for (int j = 0; j < n; j++) {

@@ -6,18 +6,26 @@ import javafx.scene.text.Font;
 import javafx.scene.text.Text;
 
 /**
- * Singleton utility for creating and modifying JavaFX Text nodes in the game.
+ * Singleton utility class for creating and managing {@link javafx.scene.text.Text} nodes
+ * used to display numbers on 2048 game tiles.
+ * <p>
+ * Provides standardized styling, positioning, and swapping of Text nodes.
  */
 public class TextMaker {
 
     private static TextMaker instance;
 
+    /**
+     * Private constructor to enforce Singleton pattern.
+     */
     private TextMaker() {
-        // private constructor for singleton
+        // Prevent external instantiation
     }
 
     /**
-     * Returns the singleton instance of TextMaker.
+     * Returns the single shared instance of TextMaker.
+     *
+     * @return the singleton instance
      */
     public static TextMaker getSingleInstance() {
         if (instance == null) {
@@ -27,12 +35,13 @@ public class TextMaker {
     }
 
     /**
-     * Creates a styled Text node to represent a tile's number.
+     * Creates a styled and positioned {@link Text} node representing a tile's number.
+     * Font size and alignment are computed based on tile size from {@link GameBoard#getLENGTH()}.
      *
-     * @param value  The number to display
-     * @param xCell  X coordinate of the tile
-     * @param yCell  Y coordinate of the tile
-     * @return Configured Text node
+     * @param value the number to display (e.g., "2", "64", "1024")
+     * @param xCell the X coordinate of the cell
+     * @param yCell the Y coordinate of the cell
+     * @return a styled and positioned Text node
      */
     public Text madeText(String value, double xCell, double yCell) {
         double length = GameBoard.getLENGTH();
@@ -45,10 +54,13 @@ public class TextMaker {
     }
 
     /**
-     * Swaps the values and positions of two Text nodes.
+     * Swaps the contents (text and position) of two {@link Text} nodes.
+     * <p>
+     * This is used during tile movement to reflect visual changes
+     * without needing to recreate nodes.
      *
-     * @param first  First Text node
-     * @param second Second Text node
+     * @param first  the first Text node
+     * @param second the second Text node
      */
     public static void changeTwoText(Text first, Text second) {
         String temp = first.getText();
