@@ -26,18 +26,22 @@ My Repo: [CW](https://github.com/afraspriha24/CW)
 
 ## Implemented and Working Properly
 - **Score bug fixed** — scoring only updates when tiles are merged correctly.
-- Full UI refactor of `Cell` interactions using encapsulated methods
-- Player Account support — switch users, create new profiles, and track high scores.
+- **Player Account support** — switch users, create new profiles, and track high scores.
 - Recent game score tracking per player.
-- Restart functionality from end game screen.
-- Home screen UI: start game, profile management, high scores, game rules.
-- High scores and recent scores shown per profile.
+- "Restart" and "Back" functionality on End Game screen and also on Game Scene.
+- Home screen with:
+    - Start New Game
+    - Create/Edit Profiles
+    - View Recent Scores
+    - View Game Rules
+- Game win alert (shows alert when tile 2048 is reached).
+- Game continues after 2048 (until grid is full and no merges possible).
 
 ## Implemented but Not Working Properly
+- Storing user info: I tried to store the user information like `username` and `user scores` locally. Then load on next game start but this is not working properly
 
 ## Features Not Implemented
 - Custom board size selection (e.g., 5x5, 6x6)
-- Game win notification (e.g., reaching 2048)
 - Profile avatar or user image
 - Login and Database
 
@@ -101,6 +105,7 @@ My Repo: [CW](https://github.com/afraspriha24/CW)
 - Controls app flow and scene switching.
 - Uses `AccountManager` and `DataManager` to remember the user.
 - Rebuilds fresh scenes for every new game or restart.
+- Controls scene switching.
 
 ## Unexpected Problems
 
