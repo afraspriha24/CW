@@ -3,6 +3,8 @@ package com.example.demo;
 import javafx.scene.Group;
 import javafx.scene.paint.Color;
 import javafx.scene.shape.Rectangle;
+import javafx.scene.text.Font;
+import javafx.scene.text.FontWeight;
 import javafx.scene.text.Text;
 
 public class Cell {
@@ -14,10 +16,21 @@ public class Cell {
     public Cell(double x, double y, double size, Group root) {
         this.root = root;
         this.background = new Rectangle(x, y, size, size);
+        this.background.setArcWidth(20); // Rounded corners
+        this.background.setArcHeight(20);
         this.background.setFill(getColorForNumber(0));
 
         this.textNode = TextMaker.getSingleInstance().madeText("0", x, y);
+        this.textNode.setFont(Font.font("Arial", FontWeight.BOLD, (size / 2.5)));
+        centerText();
         root.getChildren().add(background);
+    }
+
+    private void centerText() {
+        double centerX = background.getX() + background.getWidth() / 2;
+        double centerY = background.getY() + background.getHeight() / 2;
+        textNode.setX(centerX - textNode.getLayoutBounds().getWidth() / 2);
+        textNode.setY(centerY + textNode.getLayoutBounds().getHeight() / 4);
     }
 
     public void setModified(boolean modified) {
