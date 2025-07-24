@@ -1,7 +1,6 @@
-package com.example.demo;
+package com.example.demo.data;
 
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
 
 public class Account implements Comparable<Account> {

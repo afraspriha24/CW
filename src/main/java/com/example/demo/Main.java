@@ -1,5 +1,10 @@
 package com.example.demo;
 
+import com.example.demo.data.Account;
+import com.example.demo.data.AccountManager;
+import com.example.demo.data.DataManager;
+import com.example.demo.scene.GameScene;
+import com.example.demo.scene.HomeScreen;
 import javafx.application.Application;
 import javafx.geometry.Insets;
 import javafx.scene.Group;

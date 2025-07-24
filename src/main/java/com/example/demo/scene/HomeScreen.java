@@ -1,5 +1,8 @@
-package com.example.demo;
+package com.example.demo.scene;
 
+import com.example.demo.data.Account;
+import com.example.demo.data.AccountManager;
+import com.example.demo.data.DataManager;
 import javafx.geometry.Pos;
 import javafx.scene.Scene;
 import javafx.scene.control.*;

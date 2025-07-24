@@ -1,5 +1,7 @@
-package com.example.demo;
+package com.example.demo.scene;
 
+import com.example.demo.ui.Cell;
+import com.example.demo.ui.TextMaker;
 import javafx.scene.Group;
 import javafx.scene.text.Text;
 
