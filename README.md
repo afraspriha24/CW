@@ -27,10 +27,19 @@ My Repo: [CW](https://github.com/afraspriha24/CW)
 ## Implemented and Working Properly
 - **Score bug fixed** — scoring only updates when tiles are merged correctly.
 - Full UI refactor of `Cell` interactions using encapsulated methods
+- Player Account support — switch users, create new profiles, and track high scores.
+- Recent game score tracking per player.
+- Restart functionality from end game screen.
+- Home screen UI: start game, profile management, high scores, game rules.
+- High scores and recent scores shown per profile.
 
 ## Implemented but Not Working Properly
 
 ## Features Not Implemented
+- Custom board size selection (e.g., 5x5, 6x6)
+- Game win notification (e.g., reaching 2048)
+- Profile avatar or user image
+- Login and Database
 
 ## New Java Classes
 
@@ -42,40 +51,56 @@ My Repo: [CW](https://github.com/afraspriha24/CW)
 - Extracted from `GameScene` as part of the UI and logic separation.
 - Handles board/grid initialization and tile generation.
 - Improves modularity and clarity between UI logic and game state.
+
+`HomeScreen.java`
+- Replaces original `Main` menu logic with a structured home screen.
+- Features:
+    - Start New Game
+    - Create New Profile
+    - Edit Existing Profile (via dropdown)
+    - View Recent Scores
+    - View Game Rules
+    - Exit App
+
+`DataManager.java`
+- Handles persistent storage of last logged-in user.
+- Reads/writes username from a simple local file.
+
  
 ## Modified Java Classes
-
 `Account.java`
-- Refactored to remove static list.
-- Made getUserName() and getScore() public for external access.
-- Simplified to represent a single user's state.
-- Left in the codebase for future user-based features.
+- Refactored into a clean user model (no static data).
+- Tracks score per session and recent scores (up to 10).
+- Added methods:
+    - `addRecentScore(long)`
+    - `getRecentScores()`
 
 `TextMaker.java`
-- Refactored for clarity and encapsulation.
-- Removed the need to pass Group root to madeText(...).
-- Made class a formal singleton (getSingleInstance()).
+- Singleton helper for creating styled `Text` nodes.
+- No longer requires passing `Group` for each text.
+- Method `changeTwoText(...)` now handles text swap and positioning.
 
 `Cell.java`
-- Fully refactored for encapsulation and readability.
-- All UI updates are now handled internally via:
-    - `applyNewValue(int)`
-    - `swapContent(Cell)`
-    - `mergeInto(Cell)`
-    - `attachTextToRoot()`
-    - `updateVisuals()`
-- Fixed scoring logic in `mergeInto(...)` to prevent incorrect score updates.
-- Removed direct color setting from outside classes.
+- Fully refactored to encapsulate both logic and visuals.
+- All updates (merge, swap, apply value, modify state) are internal.
+- No external class manipulates fill color or `Text` nodes directly.
 
-### `GameScene.java`
-- Replaced raw UI manipulation of `Cell` with encapsulated methods.
-- Updated movement methods to use `mergeInto` and `swapContent`.
-- Ensured score updates only happen during valid merges.
-- Rewrote `randomFillNumber()` to rely on new `Cell` interface.
+ `GameScene.java`
+- Completely relies on `Cell` abstraction for movement.
+- `moveLeft`, `moveRight`, etc. use `swapContent()` and `mergeInto()`.
+- Score updates handled only on merges.
+- Handles game over by calling `EndGame` screen with restart/home callbacks.
 
-### `GameBoard.java`
-- Refactored `randomFillNumber()` to use updated `Cell` methods.
-- Improved consistency in tile generation logic.
+ `EndGame.java`
+- Displays score and two buttons:
+    - Restart Game (uses fresh scene via `Main`)
+    - Back to Home
+- Callback-driven UI, no scene manipulation in `EndGame` itself.
+
+`Main.java`
+- Controls app flow and scene switching.
+- Uses `AccountManager` and `DataManager` to remember the user.
+- Rebuilds fresh scenes for every new game or restart.
 
 ## Unexpected Problems
 

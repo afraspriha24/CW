@@ -20,6 +20,7 @@ public class GameScene {
     private Group root;
     private long score = 0;
     private Text scoreText;
+    private Account currentPlayer;
 
     public static void setN(int number) {
         n = number;
@@ -30,9 +31,17 @@ public class GameScene {
         return LENGTH;
     }
 
-    public void game(Scene gameScene, Group root, Stage primaryStage, Scene endGameScene, Group endGameRoot) {
-        this.root = root;
+    public void game(Scene gameScene, Group root, Stage primaryStage, Scene endGameScene, Group endGameRoot,
+                     Account player, Runnable onRestart, Runnable goHome) {
 
+        this.root = root;
+        this.currentPlayer = player;
+        this.score = 0;
+
+        // Clear previous grid
+        root.getChildren().clear();
+
+        // Init grid
         for (int i = 0; i < n; i++) {
             for (int j = 0; j < n; j++) {
                 cells[i][j] = new Cell((j) * LENGTH + (j + 1) * distanceBetweenCells,
@@ -40,7 +49,7 @@ public class GameScene {
             }
         }
 
-        Text label = new Text("SCORE :");
+        Text label = new Text("SCORE:");
         label.setFont(Font.font(30));
         label.relocate(750, 100);
         root.getChildren().add(label);
@@ -64,10 +73,15 @@ public class GameScene {
 
                 int state = checkBoardState();
                 if (state == -1 && canNotMove()) {
-                    primaryStage.setScene(endGameScene);
-                    EndGame.getInstance().endGameShow(endGameScene, endGameRoot, primaryStage, score);
-                    root.getChildren().clear();
-                    score = 0;
+                    EndGame.getInstance().endGameShow(
+                            endGameScene,
+                            endGameRoot,
+                            primaryStage,
+                            score,
+                            onRestart,
+                            goHome,
+                            currentPlayer
+                    );
                 } else if (state == 1) {
                     randomFillNumber();
                 }
