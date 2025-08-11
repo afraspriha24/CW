@@ -6,6 +6,7 @@ import javafx.scene.shape.Rectangle;
 import javafx.scene.text.Font;
 import javafx.scene.text.FontWeight;
 import javafx.scene.text.Text;
+import javafx.scene.input.MouseEvent;
 
 /**
  * Represents a single tile or "cell" on the 2048 game grid.
@@ -32,14 +33,23 @@ public class Cell {
     public Cell(double x, double y, double size, Group root) {
         this.root = root;
         this.background = new Rectangle(x, y, size, size);
-        this.background.setArcWidth(20);
-        this.background.setArcHeight(20);
+        this.background.setArcWidth(15);
+        this.background.setArcHeight(15);
         this.background.setFill(getColorForNumber(0));
 
         this.textNode = TextMaker.getSingleInstance().madeText("0", x, y);
-        this.textNode.setFont(Font.font("Arial", FontWeight.BOLD, (size / 2.5)));
+        this.textNode.setFont(Font.font("Arial", FontWeight.BOLD, (size / 2.2)));
+        this.textNode.setFill(Color.rgb(119, 110, 101)); // Dark gray for empty cells
         centerText();
         root.getChildren().add(background);
+        
+        // Add hover effect for better visual feedback
+        background.setOnMouseEntered(e -> {
+            background.setFill(getColorForNumber(getNumber()).deriveColor(0, 1, 1, 0.9));
+        });
+        background.setOnMouseExited(e -> {
+            background.setFill(getColorForNumber(getNumber()));
+        });
     }
 
     /**
@@ -107,11 +117,24 @@ public class Cell {
     }
 
     /**
-     * Updates the cell visuals — background color and text visibility.
+     * Updates the cell's visual appearance based on its current number.
      */
     public void updateVisuals() {
         updateColor();
+        updateTextColor();
         updateTextVisibility();
+    }
+
+    /**
+     * Updates the text color based on the tile value for better contrast.
+     */
+    private void updateTextColor() {
+        int number = getNumber();
+        if (number <= 4) {
+            textNode.setFill(Color.rgb(119, 110, 101)); // Dark gray for light tiles
+        } else {
+            textNode.setFill(Color.rgb(249, 246, 242)); // Light color for dark tiles
+        }
     }
 
     /**
@@ -160,10 +183,35 @@ public class Cell {
     }
 
     /**
+     * Sets the cell's number without updating visuals (for undo functionality).
+     *
+     * @param value the number to assign
+     */
+    public void setNumber(int value) {
+        textNode.setText(String.valueOf(value));
+    }
+
+    /**
+     * Removes the text node from the root group (for undo functionality).
+     */
+    public void removeText() {
+        root.getChildren().remove(textNode);
+    }
+
+    /**
      * Adds this cell's text node to the root group.
      */
     public void attachTextToRoot() {
         root.getChildren().add(textNode);
+    }
+    
+    /**
+     * Sets a click handler for this cell.
+     *
+     * @param handler the mouse click event handler
+     */
+    public void setOnMouseClicked(java.util.function.Consumer<MouseEvent> handler) {
+        background.setOnMouseClicked(handler::accept);
     }
 
     /**
@@ -193,25 +241,41 @@ public class Cell {
 
     /**
      * Returns a color based on the cell's number for display styling.
+     * Updated with a more vibrant and modern color palette.
      *
      * @param number the tile number
      * @return the corresponding color
      */
     private Color getColorForNumber(int number) {
         return switch (number) {
-            case 0 -> Color.rgb(224, 226, 226, 0.5);
-            case 2 -> Color.rgb(232, 255, 100, 0.5);
-            case 4 -> Color.rgb(232, 220, 50, 0.5);
-            case 8 -> Color.rgb(232, 200, 44, 0.8);
-            case 16 -> Color.rgb(232, 170, 44, 0.8);
-            case 32 -> Color.rgb(180, 120, 44, 0.7);
-            case 64 -> Color.rgb(180, 100, 44, 0.7);
-            case 128 -> Color.rgb(180, 80, 44, 0.7);
-            case 256 -> Color.rgb(180, 60, 44, 0.8);
-            case 512 -> Color.rgb(180, 30, 44, 0.8);
-            case 1024 -> Color.rgb(250, 0, 44, 0.8);
-            case 2048 -> Color.rgb(250, 0, 0, 1);
-            default -> Color.BLACK;
+            case 0 -> Color.rgb(238, 228, 218, 0.8); // Empty cell - visible light beige
+            case 2 -> Color.rgb(255, 182, 193);        // Light pink
+            case 4 -> Color.rgb(255, 140, 0);          // Dark orange
+            case 8 -> Color.rgb(255, 69, 0);           // Red-orange
+            case 16 -> Color.rgb(255, 20, 147);        // Deep pink
+            case 32 -> Color.rgb(138, 43, 226);        // Blue violet
+            case 64 -> Color.rgb(75, 0, 130);          // Indigo
+            case 128 -> Color.rgb(0, 191, 255);        // Deep sky blue
+            case 256 -> Color.rgb(0, 255, 127);        // Spring green
+            case 512 -> Color.rgb(255, 215, 0);        // Gold
+            case 1024 -> Color.rgb(255, 140, 0);       // Dark orange
+            case 2048 -> Color.rgb(255, 0, 0);         // Red for 2048
+            default -> Color.rgb(50, 50, 50);          // Dark gray for higher numbers
         };
     }
+
+    /**
+     * Removes all visual elements (background and text) from the root.
+     * Used when resetting the game to clear old cells.
+     */
+    public void removeAllVisuals() {
+        if (root != null) {
+            root.getChildren().remove(background);
+            if (textNode != null) {
+                root.getChildren().remove(textNode);
+            }
+        }
+    }
 }
+
+

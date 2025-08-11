@@ -23,8 +23,8 @@ import javafx.stage.Stage;
  * and transitions between the home screen and the game screen.
  */
 public class Main extends Application {
-    private static final int WIDTH = 900;
-    private static final int HEIGHT = 900;
+    private static final int WIDTH = 1200;
+    private static final int HEIGHT = 700;
 
     private Account currentPlayer;
     private Stage primaryStage;
@@ -38,7 +38,28 @@ public class Main extends Application {
     @Override
     public void start(Stage primaryStage) {
         this.primaryStage = primaryStage;
+        
+        // Configure window properties
+        primaryStage.setTitle("2048 Game");
+        primaryStage.setResizable(false);
+        primaryStage.setMinWidth(800);
+        primaryStage.setMinHeight(600);
+        primaryStage.initStyle(javafx.stage.StageStyle.UNDECORATED);
+        
+        // Load all accounts from persistent storage
+        AccountManager.loadAllAccounts();
+        
+        // Load the last active player
         currentPlayer = DataManager.loadLastPlayer();
+        
+        // Set up shutdown hook to save data when application closes
+        Runtime.getRuntime().addShutdownHook(new Thread(() -> {
+            AccountManager.saveAllAccounts();
+            if (currentPlayer != null) {
+                DataManager.saveLastPlayer(currentPlayer);
+            }
+        }));
+        
         showHomeScreen();
     }
 
@@ -53,32 +74,49 @@ public class Main extends Application {
             currentPlayer = AccountManager.findOrCreateAccount("Guest");
         }
 
-        homeRef[0] = new HomeScreen(primaryStage, currentPlayer, () -> startGame(homeRef[0].getCurrentPlayer()));
+        homeRef[0] = new HomeScreen(primaryStage, currentPlayer, () -> {
+            int boardSize = homeRef[0].getSelectedBoardSize();
+            startGame(homeRef[0].getCurrentPlayer(), boardSize);
+        });
         homeRef[0].show();
         currentPlayer = homeRef[0].getCurrentPlayer();
         DataManager.saveLastPlayer(currentPlayer);
     }
 
     /**
-     * Starts a new game session with the specified player account.
+     * Starts a new game session with the specified player account and board size.
      * Initializes both the game scene and the endgame screen.
      *
      * @param player the player account to use for the session
+     * @param boardSize the size of the game board (4, 5, or 6)
      */
-    private void startGame(Account player) {
+    private void startGame(Account player, int boardSize) {
+        // Set the board size for the game
+        GameScene.setN(boardSize);
+        
+        // Adjust window dimensions based on board size
+        int gameWidth = WIDTH;
+        int gameHeight = HEIGHT;
+        
+        if (boardSize == 5) {
+            gameHeight = 750;
+        } else if (boardSize == 6) {
+            gameHeight = 800;
+        }
+        
         Group gameRoot = new Group();
         Group endgameRoot = new Group();
 
-        Scene gameScene = new Scene(gameRoot, WIDTH, HEIGHT, Color.rgb(189, 177, 92));
-        Scene endGameScene = new Scene(endgameRoot, WIDTH, HEIGHT, Color.rgb(250, 20, 100, 0.2));
+        Scene gameScene = new Scene(gameRoot, gameWidth, gameHeight, Color.rgb(250, 248, 239));
+        Scene endGameScene = new Scene(endgameRoot, gameWidth, gameHeight, Color.rgb(250, 20, 100, 0.2));
 
         // Optional UI decoration (menu background)
-        Rectangle backgroundOfMenu = new Rectangle(240, 120, Color.rgb(120, 120, 120, 0.2));
-        backgroundOfMenu.setX(WIDTH / 2 - 120);
+        Rectangle backgroundOfMenu = new Rectangle(240, 120, Color.rgb(200, 200, 220, 0.3));
+        backgroundOfMenu.setX(gameWidth / 2 - 120);
         backgroundOfMenu.setY(180);
         gameRoot.getChildren().add(backgroundOfMenu);
 
-        BackgroundFill background_fill = new BackgroundFill(Color.rgb(120, 100, 100), CornerRadii.EMPTY, Insets.EMPTY);
+        BackgroundFill background_fill = new BackgroundFill(Color.rgb(240, 240, 250), CornerRadii.EMPTY, Insets.EMPTY);
         Background background = new Background(background_fill);
 
         GameScene game = new GameScene();
@@ -89,7 +127,7 @@ public class Main extends Application {
                 endGameScene,
                 endgameRoot,
                 currentPlayer,
-                () -> startGame(currentPlayer), // Restart handler
+                () -> startGame(currentPlayer, boardSize), // Restart handler
                 this::showHomeScreen            // Back to home handler
         );
 

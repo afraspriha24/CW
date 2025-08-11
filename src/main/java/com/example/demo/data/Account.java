@@ -1,16 +1,20 @@
 package com.example.demo.data;
 
+import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
 
 /**
  * Represents player account in the 2048 game,.
- * Each account hold a username, total score, and recent game score(s).
+ * Each account hold a username, total score, recent game score(s), and avatar.
  */
-public class Account implements Comparable<Account> {
+public class Account implements Comparable<Account>, Serializable {
+    private static final long serialVersionUID = 1L;
+    
     private long score;
     private final String userName;
     private final List<Long> recentScores = new ArrayList<>();
+    private String avatar; // Avatar identifier (e.g., "player1", "player2", etc.)
 
     /**
      * Constructs a new Account with given username.
@@ -20,6 +24,19 @@ public class Account implements Comparable<Account> {
     public Account(String userName) {
         this.userName = userName;
         this.score = 0;
+        this.avatar = "default"; // Default avatar
+    }
+
+    /**
+     * Constructs a new Account with given username and avatar.
+     *
+     * @param userName the name of the player
+     * @param avatar the avatar identifier
+     */
+    public Account(String userName, String avatar) {
+        this.userName = userName;
+        this.score = 0;
+        this.avatar = avatar;
     }
 
     /**
@@ -42,12 +59,40 @@ public class Account implements Comparable<Account> {
     }
 
     /**
+     * Sets the total score for this account.
+     * Used when loading account data from persistent storage.
+     *
+     * @param score the total score to set
+     */
+    public void setTotalScore(long score) {
+        this.score = score;
+    }
+
+    /**
      * Returns the username of this account.
      *
      * @return the player's username
      */
     public String getUserName() {
         return userName;
+    }
+
+    /**
+     * Returns the avatar identifier for this account.
+     *
+     * @return the avatar identifier
+     */
+    public String getAvatar() {
+        return avatar;
+    }
+
+    /**
+     * Sets the avatar for this account.
+     *
+     * @param avatar the avatar identifier to set
+     */
+    public void setAvatar(String avatar) {
+        this.avatar = avatar;
     }
 
     /**
